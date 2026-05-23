@@ -10,6 +10,8 @@ router.post("/issues",auth(), issueController.issueCreateController);
 router.get("/issues", issueController.getAllIssue)
 // ------get Single issues
 router.get("/issues/:id", issueController.getSingleIssue)
+// ------update issue
+router.patch("/issues/:id",auth(), issueController.updateIssue)
 
 
 export const issueRouter = router;

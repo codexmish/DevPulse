@@ -146,45 +146,27 @@ const getSingleIssue = async (id: string) => {
   }
 };
 
-export const issueService = { issueCreateService, getAllIssue, getSingleIssue };
+// ---update issue
+const updateIssue = async (payload: IssueG, id: string) => {
+  const { title, description, type } = payload;
 
-/*
-// -finding reporter user
-  for (const issue of result) {
-    const currentReporterId = issue.reporter_id;
-    if (currentReporterId) {
-      // ---finding user data
-      const userData = await pool.query(
-        `SELECT id, name, role FROM users WHERE id = $1`,
-        [currentReporterId],
-      );
+  const result = await pool.query(
+    `
+      UPDATE issues SET title=COALESCE($1,title), 
+      description=COALESCE($2,description), 
+      type=COALESCE($3,type)
 
-      const userObj = userData.rows[0];
+      WHERE id=$4 RETURNING *
+      `,
+    [title, description, type, id],
+  );
 
-      // ---creating reporter field
-      if (userObj) {
-        issue.reporter = {
-          id: userObj.id,
-          name: userObj.name,
-          role: userObj.role,
-        };
-      } else {
-        issue.reporter = null;
-      }
-      delete issue.reporter_id;
-      const newOrderedIssue = {
-        id: issue.id,
-        title: issue.title,
-        description: issue.description,
-        type: issue.type,
-        status: issue.status,
-        reporter: issue.reporter,
-        created_at: issue.created_at,
-        updated_at: issue.updated_at,
-      };
+  return result;
+};
 
-      formattedIssues.push(newOrderedIssue);
-    }
-    return formattedIssues;
-  }
-*/
+export const issueService = {
+  issueCreateService,
+  getAllIssue,
+  getSingleIssue,
+  updateIssue,
+};
