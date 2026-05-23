@@ -6,6 +6,8 @@ const router = Router();
 
 // ------Create Issue
 router.post("/issues",auth(), issueController.issueCreateController);
+// ------get all issues
+router.get("/issues", issueController.getAllIssue)
 
 
 export const issueRouter = router;

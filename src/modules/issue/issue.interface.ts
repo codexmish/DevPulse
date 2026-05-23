@@ -10,3 +10,9 @@ export interface authuserFromMiddleware {
   name: string;
   email: string;
 }
+
+export interface FilteringIsuues {
+  sort?: string;
+  type?: string;
+  status?: string;
+}

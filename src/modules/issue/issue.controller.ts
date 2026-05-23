@@ -26,4 +26,24 @@ const issueCreateController = async (req: Request, res: Response) => {
   }
 };
 
-export const issueController = { issueCreateController };
+// -----get all issues
+const getAllIssue = async (req: Request, res: Response) => {
+  try {
+    const result = await issueService.getAllIssue(req.query);
+
+    sendRes(res, {
+      statusCode: 200,
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    sendRes(res, {
+      statusCode: 500,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
+
+export const issueController = { issueCreateController, getAllIssue };
