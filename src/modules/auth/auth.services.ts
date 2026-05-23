@@ -1,7 +1,9 @@
+import config from "../../config/consfig";
 import { pool } from "../../db";
 import { ragex } from "../../helpers/ragex";
 import type { Iuser } from "./auth.interface";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 // -------signup user
 const signupInDB = async (payload: Iuser) => {
@@ -60,4 +62,64 @@ const signupInDB = async (payload: Iuser) => {
   return result;
 };
 
-export const authService = { signupInDB };
+// -------login user
+const loginInDB = async (payload: Iuser) => {
+  const { email, password } = payload;
+
+  // validation
+  if (!email) {
+    throw new Error("Email is required");
+  }
+  if (!ragex.isValidateEmail(email)) {
+    throw new Error("Email not valid");
+  }
+  if (!password) {
+    throw new Error("password is required");
+  }
+  if (!ragex.isValidatePassword(password)) {
+    throw new Error("password not valid");
+  }
+
+  //   check if user exist
+  const userData = await pool.query(
+    `
+    SELECT * FROM users WHERE email=$1
+    `,
+    [email],
+  );
+
+  if (userData.rows.length === 0) {
+    throw new Error("INVALD CREDENTIALS");
+  }
+
+  const user = userData.rows[0];
+
+  // passwordCheck
+  const matchPassword = await bcrypt.compare(password, user.password);
+
+  if (!matchPassword) {
+    throw new Error("INVALD CREDENTIALS");
+  }
+
+  delete user.password;
+
+  //   JWT toke genarate
+  const jwtPatload = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+  };
+
+  console.log(jwtPatload);
+
+  const accessToken = jwt.sign(jwtPatload, config.JWT_SEC, { expiresIn: "1d" });
+
+  const RefreshToken = jwt.sign(jwtPatload, config.JWT_SEC, {
+    expiresIn: "30d",
+  });
+  console.log(accessToken);
+
+  return { accessToken, RefreshToken, user };
+};
+
+export const authService = { signupInDB, loginInDB };
