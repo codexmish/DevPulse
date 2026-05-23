@@ -40,7 +40,6 @@ const signupInDB = async (payload: Iuser) => {
     [email],
   );
 
-  console.log(existEmail);
 
   if (existEmail.rowCount === 1) {
     throw new Error("This email is already registered. Please log in.");
@@ -110,14 +109,12 @@ const loginInDB = async (payload: Iuser) => {
     email: user.email,
   };
 
-  console.log(jwtPatload);
 
   const accessToken = jwt.sign(jwtPatload, config.JWT_SEC, { expiresIn: "1d" });
 
   const RefreshToken = jwt.sign(jwtPatload, config.JWT_SEC, {
     expiresIn: "30d",
   });
-  console.log(accessToken);
 
   return { accessToken, RefreshToken, user };
 };

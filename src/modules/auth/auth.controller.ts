@@ -27,7 +27,6 @@ const signUpController = async (req: Request, res: Response) => {
 const loginController = async (req: Request, res: Response) => {
   try {
     const result = await authService.loginInDB(req.body);
-    console.log(result);
 
     const { accessToken, RefreshToken, user } = result;
 
@@ -53,7 +52,6 @@ const loginController = async (req: Request, res: Response) => {
       data: { token: accessToken, user },
     });
   } catch (error: any) {
-    console.log(error);
 
     sendRes(res, {
       statusCode: 500,
