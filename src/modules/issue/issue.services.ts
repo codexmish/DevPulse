@@ -102,4 +102,89 @@ const getAllIssue = async (payload: FilteringIsuues) => {
   }
 };
 
-export const issueService = { issueCreateService, getAllIssue };
+// get singleIssue
+const getSingleIssue = async (id: string) => {
+  const result = await pool.query(
+    `
+      SELECT * FROM issues WHERE id=$1
+      `,
+    [id],
+  );
+  const issue = result.rows[0];
+  const formattedIssues = [];
+  const currentReporterId = issue.reporter_id;
+  if (currentReporterId) {
+    // ---finding user data
+    const userData = await pool.query(
+      `SELECT id, name, role FROM users WHERE id = $1`,
+      [currentReporterId],
+    );
+
+    const userObj = userData.rows[0];
+    if (userObj) {
+      issue.reporter = {
+        id: userObj.id,
+        name: userObj.name,
+        role: userObj.role,
+      };
+    } else {
+      issue.reporter = null;
+    }
+    delete issue.reporter_id;
+    const newOrderedIssue = {
+      id: issue.id,
+      title: issue.title,
+      description: issue.description,
+      type: issue.type,
+      status: issue.status,
+      reporter: issue.reporter,
+      created_at: issue.created_at,
+      updated_at: issue.updated_at,
+    };
+    formattedIssues.push(newOrderedIssue);
+    return formattedIssues;
+  }
+};
+
+export const issueService = { issueCreateService, getAllIssue, getSingleIssue };
+
+/*
+// -finding reporter user
+  for (const issue of result) {
+    const currentReporterId = issue.reporter_id;
+    if (currentReporterId) {
+      // ---finding user data
+      const userData = await pool.query(
+        `SELECT id, name, role FROM users WHERE id = $1`,
+        [currentReporterId],
+      );
+
+      const userObj = userData.rows[0];
+
+      // ---creating reporter field
+      if (userObj) {
+        issue.reporter = {
+          id: userObj.id,
+          name: userObj.name,
+          role: userObj.role,
+        };
+      } else {
+        issue.reporter = null;
+      }
+      delete issue.reporter_id;
+      const newOrderedIssue = {
+        id: issue.id,
+        title: issue.title,
+        description: issue.description,
+        type: issue.type,
+        status: issue.status,
+        reporter: issue.reporter,
+        created_at: issue.created_at,
+        updated_at: issue.updated_at,
+      };
+
+      formattedIssues.push(newOrderedIssue);
+    }
+    return formattedIssues;
+  }
+*/
