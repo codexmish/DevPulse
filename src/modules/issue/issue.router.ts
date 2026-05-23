@@ -12,6 +12,8 @@ router.get("/issues", issueController.getAllIssue)
 router.get("/issues/:id", issueController.getSingleIssue)
 // ------update issue
 router.patch("/issues/:id",auth(), issueController.updateIssue)
+// ------delete issue
+router.delete("/issues/:id",auth(), issueController.deleteIssue)
 
 
 export const issueRouter = router;
